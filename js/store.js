@@ -29,6 +29,7 @@
       /* ----- secvența ----- */
       case 'doc/load':
         s.doc = M.normalizeDoc(a.doc);
+        s.baseline = M.clone(s.doc); // varianta la care revine „Resetează cadrul”
         s.shotId = s.doc.shots[0].id;
         s.live.camera = M.camAt(s.shot.track, 0) || M.clone(s.shot.camera);
         s.time = 0; s.playing = false; s.recording = false;
@@ -189,6 +190,7 @@
       grid: false, dirty: false,
     };
     state.shotId = state.doc.shots[0].id;
+    state.baseline = M.clone(state.doc);
     state.live.camera = M.camAt(state.shot.track, 0) || M.clone(state.shot.camera);
 
     function commit(action, meta) {
@@ -215,7 +217,7 @@
       use(fn) { middleware.push(fn); },
       subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
       getDoc: () => M.clone(state.doc),
-      markSaved() { state.dirty = false; },
+      markSaved() { state.dirty = false; state.baseline = M.clone(state.doc); },
     };
   };
 })();

@@ -677,6 +677,16 @@
     $('#btnMaxCam').addEventListener('click', () => { app.classList.remove('max-plan'); app.classList.toggle('max-cam'); hooks.resize(); });
     $('#btnMaxPlan').addEventListener('click', () => { app.classList.remove('max-cam'); app.classList.toggle('max-plan'); hooks.resize(); });
     $('#btnFit').addEventListener('click', () => hooks.fitPlan());
+    $('#btnResetShot').addEventListener('click', async () => {
+      if (!st.dirty) { toast('Nu ai nimic de resetat: secvența e deja ca la început.'); return; }
+      if (!(await ask('Readuci secvența la cum era când ai deschis-o (sau la ultima salvare)? Decorul, personajele, cadrele și camera revin; modificările de după se pierd.', 'Resetează'))) return;
+      const keep = st.shotId, t = st.time;
+      if (st.playing) engine.pause();
+      store.dispatch({ type: 'doc/load', doc: M.clone(st.baseline) });
+      if (st.doc.shots.some((k) => k.id === keep)) { store.dispatch({ type: 'shot/select', id: keep }); engine.seek(t); }
+      store.markSaved();
+      toast('Secvența a revenit la varianta inițială.');
+    });
     $('#btnDock').addEventListener('click', () => {
       app.classList.toggle('dock-hidden');
       $('#btnDock').textContent = app.classList.contains('dock-hidden') ? '▴' : '▾';

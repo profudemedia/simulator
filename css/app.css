@@ -500,3 +500,18 @@ input[type=range] { flex: 1; height: 36px; accent-color: var(--accent); touch-ac
   grid-template-columns: minmax(0, 1fr) !important;
   grid-template-rows: minmax(0, 1fr) !important;
 }
+
+/* butoanele din imaginea de sus: text lung pe ecrane mari, scurt pe telefon */
+#planPanel .chip .s { display: none; }
+@media (max-width: 700px), (max-height: 500px) and (orientation: landscape) {
+  #planPanel .chip .l { display: none; }
+  #planPanel .chip .s { display: inline; }
+}
+@media (max-width: 700px) { #planPanel .panel-title { display: none; } #planPanel .panel-head { justify-content: flex-end; } }
+#planPanel { container-type: inline-size; }
+#planPanel .chip { white-space: nowrap; }
+#planPanel .panel-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+@container (max-width: 560px) {
+  #planPanel .chip .l { display: none; }
+  #planPanel .chip .s { display: inline; }
+}
