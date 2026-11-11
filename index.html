@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#14161b">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Simulator mișcări de aparat</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <div>
+        <div class="brand-title">Mișcări de aparat</div>
+        <button id="seqName" class="seq-name" title="Secvența curentă">Secvență nouă</button>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="btnSendBoard" class="tbtn send" hidden>Trimite pe tablă</button>
+      <button id="btnClass" class="tbtn toggle">Clasă</button>
+      <button id="btnBoard" class="tbtn">Storyboard</button>
+      <button id="btnCompare" class="tbtn toggle">Comparație</button>
+      <button id="btnSeq" class="tbtn">Secvențe</button>
+      <button id="btnGlossary" class="tbtn">Glosar</button>
+      <button id="btnFull" class="tbtn icon" title="Ecran complet" aria-label="Ecran complet"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" ><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </header>
+
+  <div id="classBanner" class="class-banner" role="status" hidden></div>
+  <main id="views">
+    <section id="camPanel" class="panel">
+      <div class="panel-head">
+        <span class="panel-title" id="camTitle">Imaginea camerei</span>
+        <div id="challenge" class="challenge" hidden></div>
+        <div class="panel-tools">
+          <button id="btnShot" class="chip" title="Salvează imaginea cadrului">Captură</button>
+          <button id="btnGrid" class="chip toggle">Grilă</button>
+          <button id="btnMaxCam" class="chip" title="Mărește" aria-label="Mărește"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" width="18" height="18"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+        <div id="compareBar" class="compare-row" hidden>
+        <div class="seg" id="cmpMode">
+          <button data-mode="tf" class="on">Transfocare vs. travling</button>
+          <button data-mode="vertigo">Travling vs. transtrav</button>
+        </div>
+        <label class="cmp-slider"><span>Apropiere</span><input id="cmpS" type="range" min="0" max="1" step="0.001" value="0.5"></label>
+        <button id="cmpAnim" class="chip">▶ Animează</button>
+      </div>
+      <div id="camStage" class="stage">
+        <div id="hud"></div>
+      </div>
+    </section>
+    <section id="planPanel" class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Imagine de sus</span>
+        <div class="panel-tools">
+          <button id="btnFit" class="chip" title="Încadrează tot">Încadrează</button>
+          <button id="btnMaxPlan" class="chip" title="Mărește" aria-label="Mărește"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" width="18" height="18"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+      <div class="stage"><canvas id="plan"></canvas></div>
+    </section>
+  </main>
+
+  <section id="dock">
+    <div id="timeline">
+      <div class="tl-shot">
+        <button id="tlPrevShot" class="tl-btn small" aria-label="Cadrul anterior">‹</button>
+        <button id="tlShotLbl" class="tl-shot-lbl" title="Cadre">Cadrul 1<small>din 1</small></button>
+        <button id="tlNextShot" class="tl-btn small" aria-label="Cadrul următor">›</button>
+      </div>
+      <button id="tlRewind" class="tl-btn" title="De la început" aria-label="De la început"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" ><path d="M5 5h2.5v14H5zM20 5v14L9 12z" fill="currentColor"/></svg></button>
+      <button id="tlPlay" class="tl-btn primary" aria-label="Redă"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" ><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg></button>
+      <button id="tlRec" class="tl-btn rec" title="Înregistrează mișcarea"><span class="dot"></span><span class="lbl">Înregistrează mișcarea</span></button>
+      <button id="tlKey" class="tl-btn" title="Adaugă keyframe">◆ <span class="lbl">Keyframe</span></button>
+      <div class="tl-track-wrap">
+        <div id="tlTrack" class="tl-track">
+          <div id="tlRecBars"></div>
+          <div id="tlKeys"></div>
+          <div id="tlHead" class="tl-head"></div>
+        </div>
+        <div id="tlLog" class="tl-log"></div>
+      </div>
+      <span id="tlTime" class="tl-time">0:00.0 / 0:12</span>
+      <button id="tlSpeed" class="tl-btn small" title="Viteza redării">1×</button>
+      <button id="tlClear" class="tl-btn small" title="Șterge înregistrarea" aria-label="Șterge înregistrarea"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" width="20" height="20"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button id="btnDock" class="tl-btn small" title="Ascunde panoul" aria-label="Ascunde panoul">▾</button>
+    </div>
+    <nav id="tabs">
+      <button data-tab="seq" class="on">Secvență</button>
+      <button data-tab="shots">Cadre</button>
+      <button data-tab="lens">Obiectiv</button>
+      <button data-tab="chars">Personaje</button>
+      <button data-tab="set">Decor</button>
+      <button data-tab="moves">Mișcări de aparat</button>
+    </nav>
+    <div id="tabBody"></div>
+  </section>
+
+  <div id="board" hidden>
+    <div class="board-head">
+      <div class="board-titles"><h2 id="boardTitle">Storyboard</h2><p id="boardMeta"></p></div>
+      <div class="btns">
+        <button class="btn" id="bPlayAll">▶ Redă toate cadrele</button>
+        <button class="btn" id="bPrint">Printează</button>
+        <button class="btn primary" id="bClose">Închide</button>
+      </div>
+    </div>
+    <div id="boardGrid" class="board-grid"></div>
+  </div>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-card">
+      <div class="sheet-head"><h2 id="sheetTitle"></h2><button id="sheetClose" class="tbtn icon" aria-label="Închide">✕</button></div>
+      <div id="sheetBody" class="sheet-body"></div>
+    </div>
+  </div>
+  <div id="ask" class="sheet" hidden>
+    <div class="sheet-card ask-card">
+      <p id="askMsg"></p>
+      <div class="btns"><button id="askNo" class="btn">Renunță</button><button id="askOk" class="btn primary">Continuă</button></div>
+    </div>
+  </div>
+  <div id="toast" role="status"></div>
+  <input id="fileInput" type="file" accept=".json,application/json" hidden>
+</div>
+
+<script src="js/vendor/three.min.js"></script>
+<script src="js/vendor/qrcode.js"></script>
+<script src="js/config.js"></script>
+<script src="js/terms.js"></script>
+<script src="js/model.js"></script>
+<script src="js/store.js"></script>
+<script src="js/presets.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/view3d.js"></script>
+<script src="js/plan.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/classui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
