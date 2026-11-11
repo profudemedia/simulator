@@ -378,3 +378,120 @@ input[type=range] { flex: 1; height: 36px; accent-color: var(--accent); touch-ac
 .class-student { display: flex; flex-direction: column; gap: 10px; }
 @media (max-width: 760px) { .class-choose, .class-host { grid-template-columns: 1fr; } }
 #topbar { grid-row: 1; } #classBanner { grid-row: 2; } #views { grid-row: 3; } #dock { grid-row: 4; }
+
+/* ---------- telefon ---------- */
+.menu-btn { display: none; }
+.menu-list { display: grid; gap: 8px; }
+.menu-list .btn { min-height: 52px; font-size: 16px; text-align: left; padding: 0 16px; }
+#tabs { touch-action: pan-x; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.tl-log { touch-action: pan-x; }
+
+@media (max-width: 700px) {
+  #topbar { padding: 6px 10px; gap: 8px; }
+  .top-actions { gap: 6px; }
+  .top-actions .tbtn { display: none; }
+  .top-actions #btnMenu { display: inline-flex; align-items: center; }
+  .top-actions #btnSendBoard:not([hidden]) { display: inline-flex; align-items: center; }
+  .tbtn { min-height: 40px; padding: 0 12px; font-size: 13.5px; }
+  .logo { width: 26px; height: 26px; }
+  .logo::after { inset: 8px; }
+  .brand-title { font-size: 14px; }
+  .seq-name { max-width: 46vw; font-size: 12px; }
+  .class-banner { font-size: 12.5px; padding: 4px 8px; gap: 8px; }
+  .class-banner .btn { min-height: 34px; padding: 0 10px; font-size: 12.5px; }
+
+  #views { padding: 6px; gap: 6px; }
+  .panel-head { min-height: 34px; padding: 2px 4px 2px 10px; }
+  .panel-title { font-size: 11.5px; }
+  .chip { min-height: 32px; padding: 0 10px; font-size: 12px; }
+  .panel-tools { gap: 4px; }
+  .challenge { font-size: 11.5px; -webkit-line-clamp: 1; }
+  .tag { font-size: 11px; padding: 3px 6px; border-radius: 6px; }
+  .tag small { display: none; }
+  .tag.shot { font-size: 12px; }
+  .tag.tl, .tag.tr { top: 5px; } .tag.tl, .tag.bl { left: 5px; } .tag.tr, .tag.br { right: 5px; } .tag.bl, .tag.br { bottom: 5px; }
+  .move-banner { font-size: 12.5px; padding: 4px 8px; bottom: 30px; }
+  .move-banner small { font-size: 11px; }
+  .compare-row { padding: 0 6px 6px; gap: 6px; }
+  .compare-row .seg button { min-height: 36px; padding: 0 8px; font-size: 12px; }
+
+  /* cronologia pe două rânduri */
+  #timeline { flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
+  .tl-btn { height: 42px; min-width: 42px; padding: 0 8px; font-size: 16px; }
+  .tl-btn .lbl { display: none; }
+  .tl-shot .tl-btn.small { width: 32px; min-width: 32px; }
+  .tl-shot-lbl { height: 42px; min-width: 60px; font-size: 12.5px; }
+  .tl-track-wrap { order: 5; flex: 1 1 140px; min-width: 0; }
+  .tl-time { order: 6; min-width: 0; font-size: 12px; }
+  .tl-btn.small { order: 7; height: 40px; min-width: 40px; }
+
+  #tabs { padding: 4px 6px 0; }
+  #tabs button { min-height: 40px; padding: 0 12px; font-size: 13px; }
+  #tabBody { padding: 8px; }
+  .cols { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .form-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .mgrid { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+  .seg { max-width: 100%; }
+  .sheet { padding: 8px; }
+  .sheet-body { padding: 12px; }
+  .board-titles h2 { font-size: 18px; }
+}
+
+/* telefon ținut vertical: imaginea camerei sus (16:9), imaginea de sus dedesubt */
+@media (max-width: 700px) and (orientation: portrait) {
+  #views { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(120px, 1fr); }
+  #camStage { flex: none; aspect-ratio: 16 / 9; }
+  #app.max-cam #views, #app.compare #views { grid-template-rows: auto 0; }
+  #app.compare #camStage { aspect-ratio: 16 / 18.5; }
+  #app.max-plan #views { grid-template-rows: 0 minmax(0, 1fr); }
+  #tabBody, #tabBody.fit { height: clamp(170px, 32vh, 300px); max-height: none; }
+}
+
+/* telefon ținut orizontal: imaginile în stânga, comenzile în dreapta */
+@media (max-height: 500px) and (orientation: landscape) {
+  #app { grid-template-columns: minmax(0, 1fr) minmax(300px, 40%); grid-template-rows: auto auto minmax(0, 1fr); }
+  #topbar { grid-column: 1 / -1; grid-row: 1; padding: 4px 10px; }
+  #classBanner { grid-column: 1 / -1; grid-row: 2; }
+  #views { grid-column: 1; grid-row: 3; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); padding: 6px; gap: 6px; }
+  #dock { grid-column: 2; grid-row: 3; border-top: 0; border-left: 1px solid var(--line); min-height: 0; overflow: hidden; }
+  #app.max-cam #views, #app.compare #views { grid-template-columns: minmax(0, 1fr) 0; }
+  #app.max-plan #views { grid-template-columns: 0 minmax(0, 1fr); }
+  #tabBody, #tabBody.fit { flex: 1; height: auto; max-height: none; min-height: 0; }
+  #timeline { flex-wrap: wrap; }
+  .top-actions .tbtn { display: none; }
+  .top-actions #btnMenu { display: inline-flex; align-items: center; }
+  .top-actions #btnSendBoard:not([hidden]) { display: inline-flex; align-items: center; }
+}
+/* nicio zonă nu poate lăți pagina peste ecran */
+#app { grid-template-columns: minmax(0, 1fr); }
+#topbar, #classBanner, #views, #dock, #timeline, #tabBody { min-width: 0; }
+#tabs { max-width: 100%; }
+@media (max-height: 500px) and (orientation: landscape) {
+  #app { grid-template-columns: minmax(0, 1fr) minmax(300px, 40%); }
+  .cols, .form-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .mgrid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .tl-btn .lbl { display: none; }
+  .tl-btn { height: 40px; min-width: 40px; padding: 0 8px; font-size: 16px; }
+  .tl-track-wrap { order: 5; flex: 1 1 140px; min-width: 0; }
+  .tl-time { order: 6; font-size: 12px; min-width: 0; }
+  .tl-btn.small { order: 7; }
+  #tabs button { min-height: 38px; padding: 0 10px; font-size: 12.5px; }
+  .tag { font-size: 11px; padding: 3px 6px; } .tag small { display: none; }
+}
+/* telefon: ajustări după test */
+@media (max-width: 700px), (max-height: 500px) and (orientation: landscape) {
+  #challenge { display: none !important; } /* provocarea rămâne în tab-ul Secvență */
+  .tag.bl { max-width: 62%; overflow: hidden; text-overflow: ellipsis; }
+  .tag.br { max-width: 36%; overflow: hidden; text-overflow: ellipsis; }
+  .tag.tl { max-width: 70%; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (max-width: 700px) and (orientation: portrait) {
+  #tabBody, #tabBody.fit { height: clamp(150px, 22vh, 240px); }
+  #views { grid-template-rows: auto minmax(150px, 1fr); }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  #views { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); }
+  .panel-title { display: none; }
+  .panel-head { min-height: 32px; padding: 2px 4px; justify-content: flex-end; }
+  .chip { min-height: 30px; padding: 0 8px; font-size: 12px; }
+}

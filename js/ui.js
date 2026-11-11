@@ -413,6 +413,15 @@
     }
     function closeBoard() { $('#board').hidden = true; if (tab === 'shots') renderTab(); }
     $('#btnBoard').addEventListener('click', openBoard);
+
+    /* meniul de pe telefon: aceleași butoane ca în bara de sus */
+    $('#btnMenu').addEventListener('click', () => {
+      const items = [['btnClass', $('#btnClass').textContent], ['btnBoard', 'Storyboard'], ['btnCompare', st.compare ? '✓ Comparație' : 'Comparație'],
+        ['btnSeq', 'Secvențe'], ['btnGlossary', 'Glosar'], ['btnFull', 'Ecran complet']];
+      openSheet('Meniu', `<div class="menu-list">${items.map(([id, l]) => `<button class="btn" data-proxy="${id}">${esc(l)}</button>`).join('')}</div>`, (root) => {
+        on(root, '[data-proxy]', 'click', (e) => { const id = e.currentTarget.dataset.proxy; closeSheet(); setTimeout(() => $('#' + id).click(), 0); });
+      });
+    });
     $('#bClose').addEventListener('click', closeBoard);
     $('#bPrint').addEventListener('click', () => { try { window.print(); } catch (e) { toast('Printarea nu este disponibilă aici.'); } });
     $('#bPlayAll').addEventListener('click', () => { closeBoard(); engine.playAll(); });
