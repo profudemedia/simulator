@@ -11,5 +11,15 @@
 */
 (function () {
   const SIM = (window.SIM = window.SIM || {});
-  SIM.config = SIM.config || { firebase: null };
+  SIM.config = SIM.config || {
+    firebase: {
+      apiKey: 'AIzaSyAOKJx4vL3IsB-P7S0NPNa2-UCiI9fEvio',
+      authDomain: 'simulator-miscari-aparat.firebaseapp.com',
+      databaseURL: 'https://simulator-miscari-aparat-default-rtdb.europe-west1.firebasedatabase.app',
+      projectId: 'simulator-miscari-aparat',
+      storageBucket: 'simulator-miscari-aparat.firebasestorage.app',
+      messagingSenderId: '586012774901',
+      appId: '1:586012774901:web:e20ad614da99fe9c65d0bc',
+    },
+  };
 })();

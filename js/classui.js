@@ -10,7 +10,7 @@
     const st = store.state;
     let joinTimer = null, joined = false;
 
-    const joinUrl = (room) => location.href.split(/[?#]/)[0] + '?clasa=' + room;
+    const joinUrl = (room) => location.href.split(/[?#]/)[0] + '?clasa=' + room + (/[?&]local=1\b/.test(location.search) ? '&local=1' : '');
     function qrImg(text) {
       try {
         const q = window.qrcode(0, 'M'); q.addData(text); q.make();

@@ -36,13 +36,17 @@
     });
   }
   function FirebaseTransport(config) {
-    let db = null, refs = [], base = null;
+    let db = null, refs = [], base = null, myRole = null;
     return {
       kind: 'firebase',
       async connect(room, role, onMsg) {
+        myRole = role;
         await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-app-compat.js');
+        await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-auth-compat.js');
         await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-database-compat.js');
         const app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(config);
+        // cont anonim: tableta intră fără cont, dar baza de date acceptă doar aplicația
+        if (!app.auth().currentUser) await app.auth().signInAnonymously();
         db = app.database();
         base = db.ref('clase/' + room);
         if (role === 'host') await base.remove(); // camera clasei pornește curată
@@ -66,12 +70,19 @@
         if (ch === 'live') base.child('live').set(msg);
         else base.child(ch).push(msg);
       },
-      close() { refs.forEach((r) => r.off()); refs = []; base = null; },
+      close() {
+        refs.forEach((r) => r.off()); refs = [];
+        // la închiderea clasei, tabla șterge datele clasei (după ce tabletele au primit anunțul)
+        if (myRole === 'host' && base) { const b = base; setTimeout(() => b.remove().catch(() => {}), 2000); }
+        base = null;
+      },
     };
   }
 
   SIM.createTransport = function () {
     const cfg = SIM.config && SIM.config.firebase;
+    // ?local=1 în adresă: test între ferestre pe același dispozitiv, fără internet
+    if (/[?&]local=1\b/.test(location.search)) return LocalTransport();
     return cfg && cfg.apiKey ? FirebaseTransport(cfg) : LocalTransport();
   };
 
