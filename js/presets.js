@@ -114,7 +114,9 @@
       return writeSaved(list);
     },
     remove(id) { return writeSaved(readSaved().filter((d) => d.id !== id)); },
+    // lucrul nesalvat de data trecută (doar modificări nesalvate; se oferă la deschidere, nu se încarcă singur)
     rememberLast(doc) { try { localStorage.setItem(KEY + ':ultima', JSON.stringify(doc)); } catch (e) {} },
+    forgetLast() { try { localStorage.removeItem(KEY + ':ultima'); } catch (e) {} },
     last() { try { const d = JSON.parse(localStorage.getItem(KEY + ':ultima') || 'null'); return d ? M.normalizeDoc(d) : null; } catch (e) { return null; } },
   };
 })();

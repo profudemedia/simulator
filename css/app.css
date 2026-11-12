@@ -515,3 +515,8 @@ input[type=range] { flex: 1; height: 36px; accent-color: var(--accent); touch-ac
   #planPanel .chip .l { display: none; }
   #planPanel .chip .s { display: inline; }
 }
+
+.resume-bar { position: fixed; z-index: 45; left: 50%; transform: translateX(-50%); top: calc(env(safe-area-inset-top, 0px) + 64px);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 24px);
+  padding: 8px 10px 8px 14px; border-radius: 12px; background: var(--panel); border: 1px solid var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,.45); font-size: 14px; font-weight: 600; }
+.resume-bar .btn { min-height: 40px; }

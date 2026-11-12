@@ -543,7 +543,7 @@
       if (name) store.dispatch({ type: 'doc/update', patch: { name } });
       if (String(st.doc.id).startsWith('model-')) store.dispatch({ type: 'doc/update', patch: { id: M.uid('s') } });
       if (!st.shot.track.keys.length) store.dispatch({ type: 'doc/setStartCamera', camera: st.live.camera });
-      if (SIM.presets.save(store.getDoc())) { store.markSaved(); toast('Secvența „' + st.doc.name + '” a fost salvată pe acest dispozitiv.'); }
+      if (SIM.presets.save(store.getDoc())) { store.markSaved(); SIM.presets.forgetLast(); toast('Secvența „' + st.doc.name + '” a fost salvată pe acest dispozitiv.'); }
       else toast('Nu am putut salva pe acest dispozitiv. Folosește „Exportă fișier”.');
       updateHeader();
     }

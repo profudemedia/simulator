@@ -3,7 +3,9 @@
   const SIM = window.SIM;
   const M = SIM.model;
 
-  const startDoc = SIM.presets.last() || SIM.presets.builtins()[0];
+  // la fiecare deschidere, aplicația pornește curat (secvența demo); lucrul nesalvat se oferă printr-un buton „Reia”
+  const lastWork = SIM.presets.last();
+  const startDoc = SIM.presets.builtins()[0];
   const store = SIM.createStore(startDoc);
   const st = store.state;
   const engine = (SIM.engine = SIM.createEngine(store));
@@ -51,12 +53,12 @@
     if (store.isDocAction(a)) {
       // păstrează lucrul curent dacă se reîncarcă pagina
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => SIM.presets.rememberLast(store.getDoc()), 800);
+      saveTimer = setTimeout(() => { if (st.dirty) SIM.presets.rememberLast(store.getDoc()); }, 800);
     }
   });
 
   // salvează imediat dacă pagina se închide sau trece în fundal
-  const flush = () => { clearTimeout(saveTimer); SIM.presets.rememberLast(store.getDoc()); };
+  const flush = () => { clearTimeout(saveTimer); if (st.dirty) SIM.presets.rememberLast(store.getDoc()); };
   window.addEventListener('pagehide', flush);
   document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
 
@@ -112,6 +114,27 @@
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+
+  // oferta de a relua lucrul nesalvat de data trecută
+  if (lastWork && !/[?&]clasa=/.test(location.search)) {
+    const bar = document.createElement('div');
+    bar.className = 'resume-bar';
+    bar.setAttribute('role', 'status');
+    const name = document.createElement('span');
+    name.textContent = 'Ai modificări nesalvate în „' + lastWork.name + '” de data trecută.';
+    const yes = document.createElement('button'); yes.className = 'btn primary'; yes.textContent = 'Reia';
+    const no = document.createElement('button'); no.className = 'btn'; no.textContent = 'Începe curat';
+    bar.append(name, yes, no);
+    document.body.appendChild(bar);
+    let timer = setTimeout(() => bar.remove(), 20000);
+    yes.addEventListener('click', () => {
+      clearTimeout(timer); bar.remove();
+      store.dispatch({ type: 'doc/load', doc: lastWork });
+      st.dirty = true; // tot nesalvat; „Salvează secvența” îl păstrează definitiv
+      ui.toast('Ai reluat „' + lastWork.name + '”.');
+    });
+    no.addEventListener('click', () => { clearTimeout(timer); bar.remove(); SIM.presets.forgetLast(); });
+  }
 
   // acces pentru teste și pentru Etapa 2
   SIM.app = { store, engine, view3d, plan, ui, classroom };
