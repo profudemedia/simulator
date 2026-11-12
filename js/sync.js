@@ -35,18 +35,34 @@
       document.head.appendChild(s);
     });
   }
+  /* Firebase pornit o singură dată, folosit de clasă și de sesiuni. */
+  let fbPromise = null;
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('Conexiunea durează prea mult.')), ms))]);
+  SIM.firebaseApp = function () {
+    const cfg = SIM.config && SIM.config.firebase;
+    if (!cfg || !cfg.apiKey || /[?&]local=1\b/.test(location.search)) return Promise.reject(new Error('Fără conexiune online configurată.'));
+    if (!fbPromise) {
+      fbPromise = withTimeout((async () => {
+        await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-app-compat.js');
+        await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-auth-compat.js');
+        await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-database-compat.js');
+        const app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(cfg);
+        // cont anonim: dispozitivul intră fără cont, dar baza de date acceptă doar aplicația
+        if (!app.auth().currentUser) await app.auth().signInAnonymously();
+        return app;
+      })(), 15000);
+      fbPromise.catch(() => { fbPromise = null; });
+    }
+    return fbPromise;
+  };
+
   function FirebaseTransport(config) {
     let db = null, refs = [], base = null, myRole = null;
     return {
       kind: 'firebase',
       async connect(room, role, onMsg) {
         myRole = role;
-        await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-app-compat.js');
-        await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-auth-compat.js');
-        await loadScript('https://www.gstatic.com/firebasejs/' + FB_VER + '/firebase-database-compat.js');
-        const app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(config);
-        // cont anonim: tableta intră fără cont, dar baza de date acceptă doar aplicația
-        if (!app.auth().currentUser) await app.auth().signInAnonymously();
+        const app = await SIM.firebaseApp();
         db = app.database();
         base = db.ref('clase/' + room);
         if (role === 'host') await base.remove(); // camera clasei pornește curată

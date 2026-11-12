@@ -103,17 +103,22 @@
     try { localStorage.setItem(KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
   }
 
+  // secvențele salvate: pe dispozitiv (implicit) sau în sesiunea deschisă (setBackend)
+  let backend = null;
   SIM.presets = {
     builtins: () => builtins.map((f) => M.normalizeDoc(f())),
-    saved: readSaved,
+    setBackend(b) { backend = b; },
+    inSession: () => !!backend,
+    saved() { return backend ? backend.saved() : readSaved(); },
     save(doc) {
-      const list = readSaved().filter((d) => d.id !== doc.id);
       const copy = M.clone(doc);
       copy.savedAt = new Date().toISOString();
+      if (backend) return backend.save(copy);
+      const list = readSaved().filter((d) => d.id !== doc.id);
       list.unshift(copy);
       return writeSaved(list);
     },
-    remove(id) { return writeSaved(readSaved().filter((d) => d.id !== id)); },
+    remove(id) { return backend ? backend.remove(id) : writeSaved(readSaved().filter((d) => d.id !== id)); },
     // lucrul nesalvat de data trecută (doar modificări nesalvate; se oferă la deschidere, nu se încarcă singur)
     rememberLast(doc) { try { localStorage.setItem(KEY + ':ultima', JSON.stringify(doc)); } catch (e) {} },
     forgetLast() { try { localStorage.removeItem(KEY + ':ultima'); } catch (e) {} },

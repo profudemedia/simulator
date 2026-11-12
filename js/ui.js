@@ -416,7 +416,7 @@
 
     /* meniul de pe telefon: aceleași butoane ca în bara de sus */
     $('#btnMenu').addEventListener('click', () => {
-      const items = [['btnClass', $('#btnClass').textContent], ['btnBoard', 'Storyboard'], ['btnCompare', st.compare ? '✓ Comparație' : 'Comparație'],
+      const items = [['sessionChip', 'Sesiune: ' + $('#sessionChip').textContent], ['btnClass', $('#btnClass').textContent], ['btnBoard', 'Storyboard'], ['btnCompare', st.compare ? '✓ Comparație' : 'Comparație'],
         ['btnSeq', 'Secvențe'], ['btnGlossary', 'Glosar'], ['btnFull', 'Ecran complet']];
       openSheet('Meniu', `<div class="menu-list">${items.map(([id, l]) => `<button class="btn" data-proxy="${id}">${esc(l)}</button>`).join('')}</div>`, (root) => {
         on(root, '[data-proxy]', 'click', (e) => { const id = e.currentTarget.dataset.proxy; closeSheet(); setTimeout(() => $('#' + id).click(), 0); });
@@ -543,7 +543,7 @@
       if (name) store.dispatch({ type: 'doc/update', patch: { name } });
       if (String(st.doc.id).startsWith('model-')) store.dispatch({ type: 'doc/update', patch: { id: M.uid('s') } });
       if (!st.shot.track.keys.length) store.dispatch({ type: 'doc/setStartCamera', camera: st.live.camera });
-      if (SIM.presets.save(store.getDoc())) { store.markSaved(); SIM.presets.forgetLast(); toast('Secvența „' + st.doc.name + '” a fost salvată pe acest dispozitiv.'); }
+      if (SIM.presets.save(store.getDoc())) { store.markSaved(); SIM.presets.forgetLast(); toast('Secvența „' + st.doc.name + '” a fost salvată' + (SIM.presets.inSession() ? ' în sesiune.' : ' pe acest dispozitiv.')); }
       else toast('Nu am putut salva pe acest dispozitiv. Folosește „Exportă fișier”.');
       updateHeader();
     }
@@ -582,15 +582,15 @@
       const body = `
         <div class="field" style="margin-bottom:14px">Salvează secvența curentă
           <div class="row"><input type="text" id="saveName" value="${esc(st.doc.name)}" maxlength="60" style="flex:1"><button class="btn primary" id="saveBtn">Salvează secvența</button></div>
-          <p class="hint">Se salvează pe acest dispozitiv, împreună cu decorul, personajele, poziția camerei și mișcarea înregistrată.</p>
+          <p class="hint">Se salvează ${SIM.presets.inSession() ? 'în sesiunea ' + esc(SIM.sessions.current.label) + ' (o poți deschide de pe orice dispozitiv cu codul ei)' : 'pe acest dispozitiv'}, împreună cu decorul, personajele, cadrele și mișcările înregistrate.</p>
         </div>
         <div class="btns" style="margin-bottom:18px">
           <button class="btn" id="newBtn">Secvență nouă</button>
           <button class="btn" id="expBtn">Exportă fișier</button>
           <button class="btn" id="impBtn">Importă fișier</button>
         </div>
-        <p class="subhead">Secvențele mele</p>
-        <div class="seq-list">${mine.length ? mine.map((d) => seqItem(M.normalizeDoc(d), 'mine')).join('') : '<p class="empty">Nu ai încă secvențe salvate pe acest dispozitiv.</p>'}</div>
+        <p class="subhead">${SIM.presets.inSession() ? 'Secvențele sesiunii' : 'Secvențele mele'}</p>
+        <div class="seq-list">${mine.length ? mine.map((d) => seqItem(M.normalizeDoc(d), 'mine')).join('') : '<p class="empty">Nu ai încă secvențe salvate' + (SIM.presets.inSession() ? ' în această sesiune.' : ' pe acest dispozitiv.') + '</p>'}</div>
         <p class="subhead">Secvențe model</p>
         <div class="seq-list">${models.map((d) => seqItem(d, 'model')).join('')}</div>`;
       openSheet('Secvențe', body, (root) => {
@@ -609,7 +609,7 @@
         });
         on(root, '[data-del]', 'click', async (e) => {
           const d = SIM.presets.saved().find((x) => x.id === e.currentTarget.dataset.del);
-          if (d && (await ask('Ștergi secvența „' + d.name + '” de pe acest dispozitiv?', 'Șterge'))) { SIM.presets.remove(d.id); openSequences(false); }
+          if (d && (await ask('Ștergi secvența „' + d.name + '”' + (SIM.presets.inSession() ? ' din sesiune?' : ' de pe acest dispozitiv?'), 'Șterge'))) { SIM.presets.remove(d.id); openSequences(false); }
         });
         if (focusSave) setTimeout(() => nameInp.select(), 50);
       });

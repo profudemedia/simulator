@@ -15,7 +15,7 @@
       <span class="logo" aria-hidden="true"></span>
       <div>
         <div class="brand-title">Mișcări de aparat</div>
-        <button id="seqName" class="seq-name" title="Secvența curentă">Secvență nouă</button>
+        <div class="brand-sub"><button id="seqName" class="seq-name" title="Secvența curentă">Secvență nouă</button><button id="sessionChip" class="session-chip off" title="Sesiunea și codul ei">Fără sesiune</button></div>
       </div>
     </div>
     <div class="top-actions">
@@ -114,6 +114,38 @@
     <div id="boardGrid" class="board-grid"></div>
   </div>
 
+  <div id="start" class="start" hidden>
+    <div class="start-card">
+      <div class="start-brand"><span class="logo" aria-hidden="true"></span><div><h1>Mișcări de aparat</h1><p>Simulator și storyboard</p></div></div>
+      <div id="stMain">
+        <div class="start-grid">
+          <section>
+            <h2>Sesiune nouă</h2>
+            <label class="field">Numele sesiunii (opțional)<input type="text" id="stName" maxlength="60" autocomplete="off" placeholder="ex.: X D – mișcări de aparat"></label>
+            <button class="btn primary" id="stNew">Începe o sesiune nouă</button>
+          </section>
+          <section>
+            <h2>Continuă o sesiune</h2>
+            <label class="field">Codul sesiunii<input type="text" id="stCode" maxlength="7" autocomplete="off" autocapitalize="characters" placeholder="K7M-P2Q"></label>
+            <button class="btn" id="stOpen">Deschide</button>
+          </section>
+        </div>
+        <section id="stRecent" class="start-recent" hidden>
+          <h2>Deschise pe acest dispozitiv</h2>
+          <ul id="stRecentList"></ul>
+        </section>
+        <p class="start-err" id="stErr" role="alert"></p>
+        <button class="start-local" id="stLocal">Lucrează fără sesiune (doar pe acest dispozitiv)</button>
+      </div>
+      <div id="stDone" hidden>
+        <h2>Sesiunea ta</h2>
+        <div class="sess-code" id="stDoneCode"></div>
+        <p class="hint">Notează codul: cu el redeschizi sesiunea de pe orice dispozitiv. Îl găsești oricând sus, lângă numele secvenței. O sesiune neaccesată 15 zile se șterge.</p>
+        <div class="btns"><button class="btn" id="stDoneCopy">Copiază codul</button><button class="btn primary" id="stEnter">Intră în sesiune</button></div>
+      </div>
+    </div>
+  </div>
+
   <div id="sheet" class="sheet" hidden>
     <div class="sheet-card">
       <div class="sheet-head"><h2 id="sheetTitle"></h2><button id="sheetClose" class="tbtn icon" aria-label="Închide">✕</button></div>
@@ -143,6 +175,7 @@
 <script src="js/ui.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/classui.js"></script>
+<script src="js/session.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

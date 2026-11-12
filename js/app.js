@@ -53,12 +53,12 @@
     if (store.isDocAction(a)) {
       // păstrează lucrul curent dacă se reîncarcă pagina
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => { if (st.dirty) SIM.presets.rememberLast(store.getDoc()); }, 800);
+      saveTimer = setTimeout(() => { if (st.dirty && !SIM.presets.inSession()) SIM.presets.rememberLast(store.getDoc()); }, 800);
     }
   });
 
   // salvează imediat dacă pagina se închide sau trece în fundal
-  const flush = () => { clearTimeout(saveTimer); if (st.dirty) SIM.presets.rememberLast(store.getDoc()); };
+  const flush = () => { clearTimeout(saveTimer); if (st.dirty && !SIM.presets.inSession()) SIM.presets.rememberLast(store.getDoc()); };
   window.addEventListener('pagehide', flush);
   document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
 
@@ -115,8 +115,9 @@
   }
   requestAnimationFrame(frame);
 
-  // oferta de a relua lucrul nesalvat de data trecută
-  if (lastWork && !/[?&]clasa=/.test(location.search)) {
+  // oferta de a relua lucrul nesalvat de data trecută (doar când se lucrează fără sesiune)
+  hooks.offerResume = () => {
+    if (!lastWork) return;
     const bar = document.createElement('div');
     bar.className = 'resume-bar';
     bar.setAttribute('role', 'status');
@@ -134,8 +135,13 @@
       ui.toast('Ai reluat „' + lastWork.name + '”.');
     });
     no.addEventListener('click', () => { clearTimeout(timer); bar.remove(); SIM.presets.forgetLast(); });
-  }
+  };
+
+  // sesiuni: ecranul de start apare înaintea aplicației, cu excepția elevilor care intră din codul QR al clasei
+  const sessions = (SIM.sessions = SIM.createSessions(store, ui, hooks));
+  if (/[?&]clasa=/.test(location.search)) { /* elevul intră direct în clasă, fără sesiune */ }
+  else sessions.showStart();
 
   // acces pentru teste și pentru Etapa 2
-  SIM.app = { store, engine, view3d, plan, ui, classroom };
+  SIM.app = { store, engine, view3d, plan, ui, classroom, sessions };
 })();
