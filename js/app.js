@@ -28,6 +28,7 @@
   };
   const ui = (SIM.ui = SIM.createUI(store, engine, hooks));
   plan.onChange(() => (needsRender = true));
+  SIM.createVideoExport(store, ui);
   const classroom = (SIM.classroom = SIM.createClassroom(store, engine));
   SIM.createClassUI(store, classroom, ui);
 

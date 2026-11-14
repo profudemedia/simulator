@@ -31,6 +31,7 @@ Aplicație web statică, fără conturi și fără server. Merge pe tablete Andr
 - O secvență are mai multe **cadre** (`doc.shots[]`): fiecare cu propria cameră de start, mișcare înregistrată (`track`), durată, momentul din acțiune la care începe (`start`) și note (`notes`).
 - Personajele se mișcă după timpul scenei: `state.sceneTime = shot.start + state.time`.
 - Pagina Storyboard randează fiecare cadru la cerere (`view3d.renderStill`), deci nu se salvează imagini în secvență.
+- **Exportă video** (pe pagina Storyboard, `js/video.js`): desenează cadrele pe rând la 25 fps (`view3d.renderFrame`), adaugă informațiile de pe imagine (încadratură, obiectiv, unghi, cadrul N, mișcarea din jurnalul înregistrării) și codează MP4 H.264 cu WebCodecs + `js/vendor/mp4-muxer.js` (MIT). Fără WebCodecs: MediaRecorder în timp real (.mp4 sau .webm).
 - Secvențele vechi (un singur cadru) sunt convertite automat la încărcare (`normalizeDoc`).
 
 ## Modul Clasă (Etapa 2)

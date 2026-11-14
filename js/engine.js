@@ -168,7 +168,11 @@
       },
       release(pid) { inputs.delete(pid); },
       releaseAll() { inputs.clear(); },
-      activeLabels() { return Array.from(currentLabels()); },
+      activeLabels() {
+        const now = Array.from(currentLabels());
+        // la redare, numele mișcării înregistrate apare la fel ca în timpul înregistrării
+        return now.length || !trackDriven() ? now : M.logLabelsAt(st.shot.track, st.time);
+      },
       isMoving() { return inputs.size > 0 || st.follow || st.aim; },
 
       toggleFollow(on) {

@@ -206,6 +206,13 @@
     };
   }
 
+  /* Mișcările din jurnalul înregistrării care au loc la momentul t */
+  function logLabelsAt(track, t) {
+    const out = [];
+    (track.log || []).forEach((g) => { if (g.t0 <= t + 1e-3 && t < g.t1 && !out.includes(g.label)) out.push(g.label); });
+    return out;
+  }
+
   /* Camera înregistrată la momentul t (null dacă nu există înregistrare) */
   function camAt(track, t) {
     const k = track.keys;
@@ -258,7 +265,7 @@
     FORMAT, VERSION, uid, clone, clamp, DEG, CHAR_COLORS, PROP_COLORS, PROP_DEFAULTS,
     defaultCamera, makeCharacter, makeProp, makeShot, linkShots, newDoc, normalizeDoc,
     pathPoints, pathLength, charEndTime, charPose, charTop, propBases, SEAT_H, suggestedDuration,
-    camForward, flatForward, flatRight, hFov, vFov, wrapDeg, lerpAngle, camLerp, camAt, pickCam,
+    camForward, flatForward, flatRight, hFov, vFov, wrapDeg, lerpAngle, camLerp, camAt, pickCam, logLabelsAt,
     lensType, compareCams,
   };
 })();

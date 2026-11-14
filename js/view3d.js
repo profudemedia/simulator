@@ -343,6 +343,7 @@
     }
 
     let compareCache = null;
+    const frameCache = {};
     return {
       resize,
       syncObjects,
@@ -397,6 +398,42 @@
         const info = { shot: shotFor(c3, camState, t), angle: angleFor(camState) };
         poseChars();
         return { canvas: cv, url: cv.toDataURL(type || 'image/jpeg', 0.86), shot: info.shot, angle: info.angle };
+      },
+      /* ca renderStill, dar refolosește ținta și pânza (pentru exportul video, cadru cu cadru) */
+      renderFrame(camState, t, w, h) {
+        const c = frameCache;
+        if (!c.rt || c.w !== w || c.h !== h) {
+          if (c.rt) c.rt.dispose();
+          c.rt = new THREE.WebGLRenderTarget(w, h, { samples: renderer.capabilities.isWebGL2 ? 4 : 0 });
+          c.rt.texture.encoding = THREE.sRGBEncoding;
+          c.px = new Uint8Array(w * h * 4);
+          c.cv = document.createElement('canvas'); c.cv.width = w; c.cv.height = h;
+          c.g = c.cv.getContext('2d');
+          c.img = c.g.createImageData(w, h);
+          c.cam = cam.clone(); c.cam.rotation.order = 'YXZ';
+          c.w = w; c.h = h;
+        }
+        poseChars(t);
+        applyCam(c.cam, camState);
+        c.cam.aspect = w / h; c.cam.updateProjectionMatrix();
+        const prevScissor = renderer.getScissorTest();
+        renderer.setScissorTest(false);
+        renderer.setRenderTarget(c.rt);
+        renderer.setViewport(0, 0, w, h);
+        renderer.clear();
+        renderer.render(scene, c.cam);
+        renderer.readRenderTargetPixels(c.rt, 0, 0, w, h, c.px);
+        renderer.setRenderTarget(null);
+        renderer.setScissorTest(prevScissor);
+        for (let y = 0; y < h; y++) c.img.data.set(c.px.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4);
+        c.g.putImageData(c.img, 0, 0);
+        const shot = shotFor(c.cam, camState, t), angle = angleFor(camState);
+        poseChars();
+        return { canvas: c.cv, shot, angle };
+      },
+      releaseFrames() {
+        if (frameCache.rt) frameCache.rt.dispose();
+        Object.keys(frameCache).forEach((k) => delete frameCache[k]);
       },
       canvas: renderer.domElement,
     };

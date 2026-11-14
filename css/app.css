@@ -556,3 +556,12 @@ input[type=range] { flex: 1; height: 36px; accent-color: var(--accent); touch-ac
 @media (max-width: 700px) { .session-chip { font-size: 10.5px; } .seq-name { max-width: 38vw; } }
 .start { background: radial-gradient(1200px 600px at 20% 0%, rgba(255,176,32,.10), transparent 60%), var(--bg); }
 #stCode::placeholder { letter-spacing: .14em; }
+
+/* ---------- export video ---------- */
+.vx { display: flex; flex-direction: column; gap: 14px; }
+.vx p { margin: 0; }
+.vx-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.vx-row > span { font-weight: 600; }
+.vx-bar { height: 12px; border-radius: 6px; background: var(--panel-2); overflow: hidden; border: 1px solid var(--line); }
+.vx-bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.vx-video { width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; display: block; }
