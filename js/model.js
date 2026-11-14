@@ -107,40 +107,54 @@
     for (let i = 1; i < p.length; i++) L += Math.hypot(p[i].x - p[i - 1].x, p[i].z - p[i - 1].z);
     return L;
   }
-  function charEndTime(c) {
-    return (c.delay || 0) + (c.path && c.path.length ? pathLength(c) / Math.max(0.05, c.speed) : 0);
-  }
   const yawOf = (dx, dz) => Math.atan2(dx, -dz) / DEG;
-
-  /* Poziția personajului la momentul t: {x, z, yaw, walking, dist} */
-  /* Poziția personajului la momentul t: {x, z, yaw, walking, seated, phase: 'start'|'walk'|'end'}
-     Înainte să plece privește spre c.yaw, pe drum în direcția de mers, iar după ce ajunge
-     se întoarce (lin) spre c.endYaw, dacă e setat. */
-  function charPose(c, t) {
-    const pts = pathPoints(c);
-    const sit = c.pose === 'sit';
-    if (pts.length < 2) return { x: c.x, z: c.z, yaw: c.yaw, walking: false, seated: sit, phase: 'start', dist: 0 };
-    const s0 = Math.max(0, t - (c.delay || 0)) * c.speed;
-    if (s0 <= 0) return { x: c.x, z: c.z, yaw: c.yaw, walking: false, seated: sit, phase: 'start', dist: 0 };
-    let s = s0;
+  /* Drumul personajului pe porțiuni, cu momentul plecării și al sosirii fiecăreia.
+     Un punct poate avea `go` = momentul din acțiune în care personajul pleacă spre el
+     (dacă ajunge mai devreme la punctul anterior, așteaptă acolo). */
+  function charLegs(c) {
+    const pts = pathPoints(c), sp = Math.max(0.05, c.speed), out = [];
+    let t = c.delay || 0, d = 0;
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1], b = pts[i];
       const L = Math.hypot(b.x - a.x, b.z - a.z);
       if (L < 1e-6) continue;
-      if (s <= L) {
-        const k = s / L;
-        const dir = yawOf(b.x - a.x, b.z - a.z);
-        const turn = Math.min(1, s0 / 0.5); // primul jumătate de metru: se întoarce spre direcția de mers
-        return { x: a.x + (b.x - a.x) * k, z: a.z + (b.z - a.z) * k,
-          yaw: lerpAngle(c.yaw, dir, turn), walking: true, seated: false, phase: 'walk', dist: s0 };
-      }
-      s -= L;
+      const t0 = Math.max(t, b.go || 0), t1 = t0 + L / sp;
+      out.push({ a, b, L, t0, t1, d0: d, dir: yawOf(b.x - a.x, b.z - a.z) });
+      t = t1; d += L;
     }
-    const a = pts[pts.length - 2], b = pts[pts.length - 1];
-    const dir = yawOf(b.x - a.x, b.z - a.z);
-    const since = s / Math.max(0.05, c.speed); // secunde de când a ajuns
-    const yaw = c.endYaw == null ? dir : lerpAngle(dir, c.endYaw, Math.min(1, since / 0.6));
-    return { x: b.x, z: b.z, yaw, walking: false, seated: sit, phase: 'end', dist: s0 - s };
+    return out;
+  }
+  function charEndTime(c) {
+    const legs = charLegs(c);
+    return legs.length ? legs[legs.length - 1].t1 : c.delay || 0;
+  }
+
+  /* Poziția personajului la momentul t: {x, z, yaw, walking, seated, dist, phase}
+     phase: 'start' (n-a plecat), 'walk', 'wait' (oprit între două porțiuni), 'end' (a ajuns).
+     Înainte să plece privește spre c.yaw, pe drum în direcția de mers, iar după ce ajunge
+     se întoarce (lin) spre c.endYaw, dacă e setat. */
+  function charPose(c, t) {
+    const sit = c.pose === 'sit';
+    const legs = charLegs(c);
+    if (!legs.length || t <= legs[0].t0) return { x: c.x, z: c.z, yaw: c.yaw, walking: false, seated: sit, phase: 'start', dist: 0 };
+    for (let i = 0; i < legs.length; i++) {
+      const g = legs[i];
+      if (t < g.t0) { // așteaptă la capătul porțiunii anterioare
+        const p = legs[i - 1];
+        return { x: p.b.x, z: p.b.z, yaw: p.dir, walking: false, seated: false, phase: 'wait', dist: p.d0 + p.L };
+      }
+      if (t <= g.t1) {
+        const k = (t - g.t0) / Math.max(1e-6, g.t1 - g.t0), walked = k * g.L;
+        const from = i === 0 ? c.yaw : legs[i - 1].dir;
+        return { x: g.a.x + (g.b.x - g.a.x) * k, z: g.a.z + (g.b.z - g.a.z) * k,
+          yaw: lerpAngle(from, g.dir, Math.min(1, walked / 0.5)), // primul jumătate de metru: se întoarce spre direcția de mers
+          walking: true, seated: false, phase: 'walk', dist: g.d0 + walked };
+      }
+    }
+    const last = legs[legs.length - 1];
+    const since = t - last.t1; // secunde de când a ajuns
+    const yaw = c.endYaw == null ? last.dir : lerpAngle(last.dir, c.endYaw, Math.min(1, since / 0.6));
+    return { x: last.b.x, z: last.b.z, yaw, walking: false, seated: sit, phase: 'end', dist: last.d0 + last.L };
   }
   // creștetul personajului (în picioare sau așezat)
   function charTop(c, seated) {
@@ -264,7 +278,7 @@
   SIM.model = {
     FORMAT, VERSION, uid, clone, clamp, DEG, CHAR_COLORS, PROP_COLORS, PROP_DEFAULTS,
     defaultCamera, makeCharacter, makeProp, makeShot, linkShots, newDoc, normalizeDoc,
-    pathPoints, pathLength, charEndTime, charPose, charTop, propBases, SEAT_H, suggestedDuration,
+    pathPoints, pathLength, charLegs, charEndTime, charPose, charTop, propBases, SEAT_H, suggestedDuration,
     camForward, flatForward, flatRight, hFov, vFov, wrapDeg, lerpAngle, camLerp, camAt, pickCam, logLabelsAt,
     lensType, compareCams,
   };

@@ -161,7 +161,7 @@
           <label class="field">Nume<input type="text" id="cName" value="${esc(sc.name)}" maxlength="24"></label>
           <div class="field">Culoare${swatchesHTML(M.CHAR_COLORS, sc.color, 'ccolor')}</div>
           ${slider('Viteza de deplasare', 'cSpeed', 0.3, 4, 0.1, sc.speed, (v) => v.toFixed(1) + ' m/s')}
-          ${slider('Pornește după', 'cDelay', 0, 20, 0.5, sc.delay, (v) => v.toFixed(1) + ' s')}
+          ${slider('Pornește după', 'cDelay', 0, Math.max(20, Math.ceil(sc.delay || 0) + 10), 0.5, sc.delay, (v) => v.toFixed(1) + ' s')}
           ${slider('Înălțime', 'cHeight', 1.0, 2.1, 0.01, sc.height, (v) => v.toFixed(2) + ' m')}
           <div class="field">Poziție<div class="seg" id="cPose">
             <button data-pose="stand" class="${sc.pose !== 'sit' ? 'on' : ''}">În picioare</button>

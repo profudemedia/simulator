@@ -203,6 +203,19 @@
             ctx.fillStyle = i === 0 ? '#fff' : c.color; ctx.strokeStyle = '#111'; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(q.x, q.y, i === 0 ? 7 : 9, 0, 7); ctx.fill(); ctx.stroke();
           });
+          // unde personajul se oprește și așteaptă: „pleacă la 0:06”
+          if (sel) pts.forEach((p, i) => {
+            if (!i || !p.go) return;
+            const q = toScreen(pts[i - 1].x, pts[i - 1].z);
+            const m = Math.floor(p.go / 60), sec = p.go - m * 60;
+            const txt = 'pleacă la ' + m + ':' + (sec < 10 ? '0' : '') + sec.toFixed(1).replace('.', ',');
+            ctx.font = '700 12px system-ui, sans-serif'; ctx.textAlign = 'center';
+            const w = ctx.measureText(txt).width + 10;
+            ctx.fillStyle = 'rgba(10,12,16,.85)'; ctx.strokeStyle = c.color; ctx.lineWidth = 1.5;
+            ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(q.x - w / 2, q.y - 34, w, 18, 5); else ctx.rect(q.x - w / 2, q.y - 34, w, 18);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#fff'; ctx.textBaseline = 'middle'; ctx.fillText(txt, q.x, q.y - 25); ctx.textBaseline = 'alphabetic';
+          });
         }
       });
 
@@ -221,7 +234,7 @@
         ctx.font = '600 13px system-ui, sans-serif'; ctx.textAlign = 'center';
         ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.75)'; ctx.strokeText(c.name, o.x, o.y + r + 17);
         ctx.fillStyle = '#fff'; ctx.fillText(c.name, o.x, o.y + r + 17);
-        if (sel && p.phase !== 'walk') knob(knobPos(p.x, p.z, p.yaw, 0.9), '#ffd166');
+        if (sel && (p.phase === 'start' || p.phase === 'end')) knob(knobPos(p.x, p.z, p.yaw, 0.9), '#ffd166');
       });
 
       // mânerul de rotire al obiectului selectat
@@ -289,7 +302,7 @@
       const sc = selectedChar();
       if (sc) {
         const p = M.charPose(sc, st.sceneTime);
-        if (p.phase !== 'walk' && near(sx, sy, knobPos(p.x, p.z, p.yaw, 0.9), TOL)) return { kind: 'charRot', id: sc.id, phase: p.phase, cx: p.x, cz: p.z };
+        if ((p.phase === 'start' || p.phase === 'end') && near(sx, sy, knobPos(p.x, p.z, p.yaw, 0.9), TOL)) return { kind: 'charRot', id: sc.id, phase: p.phase, cx: p.x, cz: p.z };
         const pts = M.pathPoints(sc);
         for (let i = pts.length - 1; i >= 1; i--) if (near(sx, sy, toScreen(pts[i].x, pts[i].z), TOL)) return { kind: 'wp', id: sc.id, index: i };
       }
@@ -419,7 +432,7 @@
         if (drag.kind === 'pan') {
           if (st.pathMode && selectedChar()) {
             const w = toWorld(p.x, p.y);
-            store.dispatch({ type: 'path/add', id: selectedChar().id, x: snap(w.x), z: snap(w.z) });
+            store.dispatch({ type: 'path/add', id: selectedChar().id, x: snap(w.x), z: snap(w.z), at: st.sceneTime });
           } else if (st.selected) {
             store.dispatch({ type: 'select', sel: null });
           }

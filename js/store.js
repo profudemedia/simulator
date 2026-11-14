@@ -110,7 +110,14 @@
         break;
       case 'path/add': {
         const c = findById(d.characters, a.id);
-        if (c) c.path.push({ x: a.x, z: a.z });
+        if (c) {
+          // punctele desenate sunt locuri în care personajul ajunge DE ACUM (momentul din acțiune a.at)
+          const at = typeof a.at === 'number' ? Math.round(a.at * 10) / 10 : 0;
+          const pt = { x: a.x, z: a.z };
+          if (!c.path.length) { if (at > (c.delay || 0) + 0.05) c.delay = at; }
+          else if (at > M.charEndTime(c) + 0.05) pt.go = at;
+          c.path.push(pt);
+        }
         break;
       }
       case 'path/move': {
